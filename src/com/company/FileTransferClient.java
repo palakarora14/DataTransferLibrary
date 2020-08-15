@@ -14,7 +14,8 @@ import java.util.stream.Stream;
 
 public class FileTransferClient {
 
-    private static String serverIp="192.168.43.74";
+    // copy the "System IP Address : " obtained after running the FileTransferServer.java file
+    private static String serverIp="";
 
     public static void main(String[] args) throws Exception{
 
@@ -30,7 +31,7 @@ public class FileTransferClient {
         receiveFilenameOS.read(filenameOSByteArray);
         String filenameOS = new String(filenameOSByteArray);
         // divide filenameOS into filename and OS
-        String[] split = filenameOS.split(" ");
+        String[] split = filenameOS.split("#");
         String filename = split[0] ;
         String serverOperatingSystem = split[1] ;
         //System.out.println(filename+" "+serverOperatingSystem);
@@ -41,11 +42,14 @@ public class FileTransferClient {
         String ClientOS = findOS();
         boolean ClientOSMac = ClientOS.contains("Mac"); //true
         boolean ServerOSMac = serverOperatingSystem.contains("Mac"); //true
-        
+
+        // set home directory of user to "home"
+        String home = System.getProperty("user.home");
         if(ClientOSMac){
-            target = "/Users/aroras/Downloads/GoodProgram/";
+            target = home+"/Downloads/GoodProgram/";
         }else{
-            target = "C:\\Users\\hp\\Downloads\\GoodProgram\\";
+            //C:\Users\hp
+            target = home+"\\Downloads\\GoodProgram\\";
         }
         // Create Directory
         Files.createDirectories(Paths.get(target));
@@ -79,7 +83,10 @@ public class FileTransferClient {
         bos.flush();
         socket.close();
 
-        System.out.println("File saved successfully!");
+        System.out.print(Fname + " : ");
+        System.out.println( ThreadColor.ANSI_YELLOW +"File saved successfully!");
+        //Italicized text
+        System.out.println(ThreadColor.ANSI_BLUE+ "\n"+"\033[3mRefer GoodProgram folder in your Downloads folder\033[0m");
     }
 
     private static String findOS() {

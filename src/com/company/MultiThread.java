@@ -33,7 +33,7 @@ public class MultiThread extends Thread {
 
 
             // Send File name and OS to client
-            byte[] filename = (file.toString()+" "+OSystem).getBytes();
+            byte[] filename = (file.toString()+"#"+OSystem).getBytes();
             OutputStream sendFilename =socket.getOutputStream();
             sendFilename.write(filename);
             sendFilename.flush();
