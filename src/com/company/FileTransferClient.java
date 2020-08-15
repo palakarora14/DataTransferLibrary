@@ -14,15 +14,12 @@ import java.util.stream.Stream;
 
 public class FileTransferClient {
 
-    private static String serverIp;
-
-    public FileTransferClient(String serverIp) {
-        this.serverIp = serverIp;
-    }
+    private static String serverIp="";
 
     public static void main(String[] args) throws Exception{
 
         //Initialize socket
+        BufferedReader inFromUser =new BufferedReader(new   InputStreamReader(System.in));
         //Socket socket = new Socket(InetAddress.getByName("localhost"), 5000);
         Socket socket = new Socket(serverIp, 5000);
         byte[] contents = new byte[10000];

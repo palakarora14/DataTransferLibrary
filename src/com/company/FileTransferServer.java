@@ -31,10 +31,12 @@ public class FileTransferServer {
             systemipaddress = "Cannot Execute Properly";
         }
         System.out.println("Public IP Address: " + systemipaddress +"\n");
+
+
+
         // Initialize Sockets
         ServerSocket ssock = new ServerSocket(5000);
 
-        FileTransferClient fileTransferClient = new FileTransferClient(privateIP);
 
         while(true){
             new MultiThread(ssock.accept()).start();
