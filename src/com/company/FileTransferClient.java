@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 
 public class FileTransferClient {
 
-    private static String serverIp="";
+    private static String serverIp="192.168.43.74";
 
     public static void main(String[] args) throws Exception{
 
@@ -24,18 +24,37 @@ public class FileTransferClient {
         Socket socket = new Socket(serverIp, 5000);
         byte[] contents = new byte[10000];
 
-        // Read filename from server
-        byte[] filenameByteArray = new byte[100];
-        InputStream receiveFilename = socket.getInputStream();
-        receiveFilename.read(filenameByteArray);
-        String filename = new String(filenameByteArray);
+        // Read filename and OS from server
+        byte[] filenameOSByteArray = new byte[100];
+        InputStream receiveFilenameOS = socket.getInputStream();
+        receiveFilenameOS.read(filenameOSByteArray);
+        String filenameOS = new String(filenameOSByteArray);
+        // divide filenameOS into filename and OS
+        String[] split = filenameOS.split(" ");
+        String filename = split[0] ;
+        String serverOperatingSystem = split[1] ;
+        //System.out.println(filename+" "+serverOperatingSystem);
 
-
+        //check for OS of client and server
+        String target;
+        String Fname;
+        String ClientOS = findOS();
+        boolean ClientOSMac = ClientOS.contains("Mac"); //true
+        boolean ServerOSMac = serverOperatingSystem.contains("Mac"); //true
+        
+        if(ClientOSMac){
+            target = "/Users/aroras/Downloads/GoodProgram/";
+        }else{
+            target = "C:\\Users\\hp\\Downloads\\GoodProgram\\";
+        }
         // Create Directory
-        String target = "/Users/aroras/Downloads/GoodProgram/";
         Files.createDirectories(Paths.get(target));
-        // find out the name of the file to be downloaded from the server from complete filePath
-        String Fname = filename.substring(filename.lastIndexOf("/") + 1);
+        if(ServerOSMac){
+            // find out the name of the file to be downloaded from the server from complete filePath
+            Fname = filename.substring(filename.lastIndexOf("/") + 1);
+        }else{
+            Fname = filename.substring(filename.lastIndexOf("\\") + 1);
+        }
 
         // Remove the null character from the string
         StringJoiner joiner = new StringJoiner("");
@@ -61,5 +80,11 @@ public class FileTransferClient {
         socket.close();
 
         System.out.println("File saved successfully!");
+    }
+
+    private static String findOS() {
+        String os = System.getProperty("os.name");
+        return os;
+        //System.out.println(System.getProperty("os.name"));
     }
 }

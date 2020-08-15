@@ -1,15 +1,26 @@
 package com.company;
 
 import java.io.*;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.net.URL;
+import java.net.*;
 
 public class FileTransferServer {
 
     public static void main(String[] args) throws Exception {
 
+        findIp();
+
+
+        // Initialize Sockets
+        ServerSocket ssock = new ServerSocket(5000);
+
+        while(true){
+            new MultiThread(ssock.accept()).start();
+            System.out.println(ThreadColor.ANSI_WHITE+"Client Connected");
+
+        }
+    }
+
+    private static void findIp() throws UnknownHostException {
         //get the ipaddress of the system
         //local Ip
         InetAddress localhost = InetAddress.getLocalHost();
@@ -31,18 +42,7 @@ public class FileTransferServer {
             systemipaddress = "Cannot Execute Properly";
         }
         System.out.println("Public IP Address: " + systemipaddress +"\n");
-
-
-
-        // Initialize Sockets
-        ServerSocket ssock = new ServerSocket(5000);
-
-
-        while(true){
-            new MultiThread(ssock.accept()).start();
-            System.out.println(ThreadColor.ANSI_WHITE+"Client Connected");
-
-        }
-
     }
+
+
 }

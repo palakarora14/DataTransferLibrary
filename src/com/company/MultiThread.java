@@ -28,12 +28,15 @@ public class MultiThread extends Thread {
             PickAFile pickAFile = new PickAFile();
             File file = new File(pickAFile.selectFile().toString());
 
-            // Send File name to client
-            byte[] filename= file.toString().getBytes();
+            String OSystem = findOS();
+
+
+
+            // Send File name and OS to client
+            byte[] filename = (file.toString()+" "+OSystem).getBytes();
             OutputStream sendFilename =socket.getOutputStream();
             sendFilename.write(filename);
             sendFilename.flush();
-
 
 
             FileInputStream fis = new FileInputStream(file);
@@ -80,6 +83,12 @@ public class MultiThread extends Thread {
             }
         }
 
+    }
+
+    private static String findOS() {
+        String os = System.getProperty("os.name");
+        return os;
+        //System.out.println(System.getProperty("os.name"));
     }
 
 
