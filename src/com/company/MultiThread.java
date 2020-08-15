@@ -4,6 +4,7 @@ import java.awt.*;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.URL;
 import java.nio.file.Files;
 
 public class MultiThread extends Thread {
@@ -20,7 +21,7 @@ public class MultiThread extends Thread {
             // The InetAddress specification
             // to get the IP address of the host
             // getByName() : returns the instance of InetAddress containing LocalHost IP and name
-            InetAddress IA = InetAddress.getByName("localhost");
+            // InetAddress IA = InetAddress.getByName("localhost");
 
             // Specify the file
             // Client picks the file from the server
@@ -32,6 +33,8 @@ public class MultiThread extends Thread {
             OutputStream sendFilename =socket.getOutputStream();
             sendFilename.write(filename);
             sendFilename.flush();
+
+
 
             FileInputStream fis = new FileInputStream(file);
             //  BufferedInputStream will read the contents from the file in the form of streams

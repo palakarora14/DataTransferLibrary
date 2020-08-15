@@ -14,35 +14,17 @@ import java.util.stream.Stream;
 
 public class FileTransferClient {
 
+    private static String serverIp;
+
+    public FileTransferClient(String serverIp) {
+        this.serverIp = serverIp;
+    }
+
     public static void main(String[] args) throws Exception{
-
-        //get the ipaddress of the system
-        //local Ip
-        InetAddress localhost = InetAddress.getLocalHost();
-        String privateIP = (localhost.getHostAddress()).trim();
-        System.out.println("System IP Address : " + privateIP);
-        // Find public IP address
-        String systemipaddress;
-        try
-        {
-            URL url_name = new URL("http://bot.whatismyipaddress.com");
-            BufferedReader sc =
-                    new BufferedReader(new InputStreamReader(url_name.openStream()));
-            // reads system IPAddress
-            systemipaddress = sc.readLine().trim();
-        }
-        catch (Exception e)
-        {
-            systemipaddress = "Cannot Execute Properly";
-        }
-        System.out.println("Public IP Address: " + systemipaddress +"\n");
-
-
-
 
         //Initialize socket
         //Socket socket = new Socket(InetAddress.getByName("localhost"), 5000);
-        Socket socket = new Socket(privateIP, 5000);
+        Socket socket = new Socket(serverIp, 5000);
         byte[] contents = new byte[10000];
 
         // Read filename from server
@@ -50,6 +32,7 @@ public class FileTransferClient {
         InputStream receiveFilename = socket.getInputStream();
         receiveFilename.read(filenameByteArray);
         String filename = new String(filenameByteArray);
+
 
         // Create Directory
         String target = "/Users/aroras/Downloads/GoodProgram/";
