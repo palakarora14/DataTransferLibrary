@@ -44,21 +44,7 @@ public class MultiThread extends Thread {
             sendFilename.flush();
 
             // call function to write content into the file
-            writeContent(fileLength , fis);
-
-            //Read requested file from current position from the client
-            byte[] fileCurrent = new byte[100];
-            InputStream receiveFileCurrent = socket.getInputStream();
-            receiveFileCurrent.read(fileCurrent);
-            String filenameCurrent = new String(fileCurrent);
-            // divide filenameOS into filename and OS
-            String[] split = filenameCurrent.split("#");
-            String requestedFile = split[0];
-            String requestedCurrent = split[1];
-            String requestedFileLength = split[2].trim();
-            System.out.println(requestedFile+" "+requestedCurrent+" "+requestedFileLength);
-
-
+            sendContent(fileLength , fis);
 
         } catch(IOException e) {
             System.out.println("Oops: " + e.getMessage());
@@ -79,7 +65,7 @@ public class MultiThread extends Thread {
         //System.out.println(System.getProperty("os.name"));
     }
 
-    public void writeContent(long fileLength, FileInputStream fis ) throws IOException {
+    public void sendContent(long fileLength, FileInputStream fis ) throws IOException {
         //  BufferedInputStream will read the contents from the file in the form of streams
         BufferedInputStream bis = new BufferedInputStream(fis);
 
@@ -93,7 +79,7 @@ public class MultiThread extends Thread {
         long current = 0;
 
         while(current!=fileLength){
-            int size = 10000;
+            int size = 500000;
             if(fileLength - current >= size)
                 current += size;
             else{
@@ -103,13 +89,23 @@ public class MultiThread extends Thread {
             contents = new byte[size];
             // read contains : (destination array , begin , end )
             bis.read(contents, 0, size);
-            System.out.println(ThreadColor.ANSI_PURPLE+ current);
-            os.write(contents);
-            System.out.println(ThreadColor.ANSI_WHITE+"Sending file ... "+(current*100)/fileLength+"% complete!");
+            //System.out.println(ThreadColor.ANSI_PURPLE+ current);
+            try {
+                os.write(contents);
+            }catch (IOException e){
+                System.out.println("Client closed");
+                break;
+            }
+            System.out.println(ThreadColor.ANSI_WHITE+"Sending file ... "+(float)(current*100)/fileLength+"% complete!");
+
         }
         os.flush();
+        if(current == fileLength){
         System.out.println(ThreadColor.ANSI_YELLOW+"File sent succesfully!");
-        System.out.println("\n");
+        System.out.println("\n");}
+        else{
+            System.out.println(ThreadColor.ANSI_YELLOW+"Only "+(float)(current*100)/fileLength+"% file send was complete!");
+        }
     }
 
 }
