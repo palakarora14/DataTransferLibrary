@@ -16,11 +16,9 @@ import java.util.stream.Stream;
 public class FileTransferClient {
 
     // copy the "System IP Address : " obtained after running the FileTransferServer.java file
-    private static String serverIp="";
+    private static String serverIp="192.168.43.25";
 
     public static void main(String[] args) throws Exception{
-
-       // while(true){
 
             try {
                 //Initialize socket
@@ -84,17 +82,49 @@ public class FileTransferClient {
                 //No of bytes read in one read() call
                 int bytesRead = 0;
                 long current = 0;
+                int fileLengthLong = Integer.parseInt(fileLength.trim());
 
                 // returns the number of bytes read, or -1 if the end of the stream has been reached.
                 while ((bytesRead = is.read(contents)) != -1) {
-                    current += bytesRead;
-                    if(socket.isClosed()){
-                        System.out.println("server disconnect");
+                    boolean flag = hostAvailabilityCheck();
+                    System.out.println(ThreadColor.ANSI_WHITE+flag);
+                    if(flag) {
+                        current += bytesRead;
+                        bos.write(contents, 0, bytesRead);
+                        System.out.println(ThreadColor.ANSI_WHITE+current);
                     }
-                    bos.write(contents, 0, bytesRead);
-                    //System.out.println(current);
+                    else{
+                        // for broken connection via server socket
+                        System.out.println(ThreadColor.ANSI_PURPLE+ "Server connection Interrupted ! ");
+                        System.out.println(ThreadColor.ANSI_PURPLE+ "Waiting for Connection");
+                        System.out.println(current+"**");
+                        is.close();
+
+                        Thread.sleep(8000);
+                        // System.out.println("Thread is up");
+                        flag = hostAvailabilityCheck();
+                        if(flag)
+                        {
+                            // file can be retrieved
+                        System.out.println("File can be retrieved");
+                        //request file from the position after current from the server(Sending)
+                            byte[] fileCurrent = (filename+"#"+current+"#"+fileLength).getBytes();
+                            OutputStream sendFileCurrent =socket.getOutputStream();
+                            sendFileCurrent.write(fileCurrent);
+                            sendFileCurrent.flush();
+
+                        //InputStream inputStream = socket.getInputStream();
+                        break;
+                        }
+                        else{
+                            System.out.println("File can't be retrieved");
+                        System.out.println(ThreadColor.ANSI_WHITE+(current*100)/fileLengthLong+"% of the file was downloaded though !");
+                        System.out.println(ThreadColor.ANSI_BLUE+ "\n"+"\033[3mRefer GoodProgram folder in your Downloads folder\033[0m");
+                        socket.close();
+                        break;
+                        }
+                    }
                 }
-                int fileLengthLong = Integer.parseInt(fileLength.trim());
                 if(current == fileLengthLong) {
                     bos.flush();
 
@@ -105,28 +135,10 @@ public class FileTransferClient {
                     socket.close();
                    // break;
                 }
-                else{
-                    // for broken connection via server socket
-                    System.out.println("Server connection Interrupted ! ");
-                    System.out.println(ThreadColor.ANSI_PURPLE+ "Waiting for Connection");
-                    Thread.sleep(8000);
-                    //System.out.println("Thread is up");
-                    System.out.println(socket.isInputShutdown());
-                    boolean flag = hostAvailabilityCheck();
-                    if(flag){
-                        // file can be retrieved
-                        System.out.println("Under Construction");
-                    }else{
-                        System.out.println(ThreadColor.ANSI_WHITE+(current*100)/fileLengthLong+"% of the file was downloaded though !");
-                        System.out.println(ThreadColor.ANSI_BLUE+ "\n"+"\033[3mRefer GoodProgram folder in your Downloads folder\033[0m");
-                        socket.close();
-                       // break;
-                    }
-                }
             }catch(ConnectException e){
                 System.out.println("Server not Connected !");
             }
-       // }
+
     }
 
     private static String findOS() {
@@ -136,25 +148,7 @@ public class FileTransferClient {
     }
 
     private static boolean hostAvailabilityCheck() throws Exception{
-        boolean flag;
-        //System.out.println(InetAddress.getByName(serverIp).isReachable(10000));
-//        try (Socket s = new Socket(serverIp, 5000)) {
-//            System.out.println("File can be retrieved");
-//            s.close();
-//            flag= true;
-//        } catch (IOException ex) {
-//            System.out.println(ThreadColor.ANSI_YELLOW+"Server is down file can't be Retrieved");
-//            flag= false;
-//        }
         boolean temp = InetAddress.getByName(serverIp).isReachable(10000);
-        if(temp)
-        {
-            System.out.println(ThreadColor.ANSI_YELLOW+"File can be retrieved");
-            flag=true;
-        }else{
-            System.out.println(ThreadColor.ANSI_YELLOW+"Server is down file can't be Retrieved");
-            flag= false;
-        }
-        return flag;
+        return temp;
     }
 }

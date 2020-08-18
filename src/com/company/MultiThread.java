@@ -46,6 +46,20 @@ public class MultiThread extends Thread {
             // call function to write content into the file
             writeContent(fileLength , fis);
 
+            //Read requested file from current position from the client
+            byte[] fileCurrent = new byte[100];
+            InputStream receiveFileCurrent = socket.getInputStream();
+            receiveFileCurrent.read(fileCurrent);
+            String filenameCurrent = new String(fileCurrent);
+            // divide filenameOS into filename and OS
+            String[] split = filenameCurrent.split("#");
+            String requestedFile = split[0];
+            String requestedCurrent = split[1];
+            String requestedFileLength = split[2].trim();
+            System.out.println(requestedFile+" "+requestedCurrent+" "+requestedFileLength);
+
+
+
         } catch(IOException e) {
             System.out.println("Oops: " + e.getMessage());
         }
@@ -89,7 +103,7 @@ public class MultiThread extends Thread {
             contents = new byte[size];
             // read contains : (destination array , begin , end )
             bis.read(contents, 0, size);
-            //System.out.println(ThreadColor.ANSI_PURPLE+ current);
+            System.out.println(ThreadColor.ANSI_PURPLE+ current);
             os.write(contents);
             System.out.println(ThreadColor.ANSI_WHITE+"Sending file ... "+(current*100)/fileLength+"% complete!");
         }
