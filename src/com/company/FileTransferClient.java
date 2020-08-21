@@ -2,7 +2,6 @@ package com.company;
 
 import java.io.*;
 import java.net.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -91,6 +90,9 @@ public class FileTransferClient {
                     socket.close();
                    // break;
                 }
+                else {
+                    System.out.println(ThreadColor.ANSI_YELLOW + "Server Disconnected");
+                }
             }catch(ConnectException e){
                 System.out.println("Server not Connected !");
             }
@@ -112,6 +114,9 @@ public class FileTransferClient {
         //No of bytes read in one read() call
         int bytesRead = 0;
         long current = 0;
+        long total=0;
+        long num=0;
+        long start = System.currentTimeMillis();
         try{
             // returns the number of bytes read, or -1 if the end of the stream has been reached.
             while ((bytesRead = is.read(contents)) != -1) {
@@ -120,6 +125,10 @@ public class FileTransferClient {
                 if(flag) {
                     current += bytesRead;
                     bos.write(contents, 0, bytesRead);
+
+                    long speed = printSpeed(start,current);
+                    total+=speed;
+                    num++;
                     //                           System.out.println(current);
                     System.out.println(ThreadColor.ANSI_WHITE+"Downloading file ... "+(float)(current*100)/fileLengthLong+"% complete!");
                 }
@@ -147,10 +156,24 @@ public class FileTransferClient {
                     }
                 }
             }
+            // find average speed
+            long average = total/num;
+
+            System.out.println("\nAverage speed achieved in the whole transaction is : "+average+" MB/s\n");
         }
         catch (SocketException e){
             System.out.println(ThreadColor.ANSI_YELLOW+ "Oops Server Disconnected , Try after some Time !!");
         }
         return current;
+    }
+
+    public static long printSpeed(long start , long current)
+    {
+
+            long cost = System.currentTimeMillis() - start;
+            long speed= current/cost/1000;
+            System.out.printf(ThreadColor.ANSI_PURPLE + "Read %,d bytes, speed: %,d MB/s%n", current, speed);
+            return speed;
+
     }
 }
