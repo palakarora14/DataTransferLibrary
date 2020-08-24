@@ -1,11 +1,10 @@
 package com.company;
 
-import java.awt.*;
+import com.company.SecurityPackage.AESEncryptionDecryption;
+import com.company.SecurityPackage.RandomStringKey;
+
 import java.io.*;
-import java.net.InetAddress;
 import java.net.Socket;
-import java.net.URL;
-import java.nio.file.Files;
 
 public class MultiThread extends Thread {
     private Socket socket;
@@ -25,28 +24,45 @@ public class MultiThread extends Thread {
 
             // Specify the file
             // Client picks the file from the server
-            PickAFile pickAFile = new PickAFile();
-            File file = new File(pickAFile.selectFile().toString());
-            //****  String to be encrypted is "String str = file.toString()" while will be send on line 36 ****
-            // It needs to be encrypted at this step
 
             String OSystem = findOS();
 
-            FileInputStream fis = new FileInputStream(file);
-            long fileLength = file.length();
-            String fileLengthString =String.valueOf(fileLength);
+            PickAFile pickAFile = new PickAFile();
+            try{
+                File file = new File(pickAFile.selectFile().toString());
+                // encryption
+                // String to be encrypted is "String str = file.toString()"
+                int n = 10;
+                RandomStringKey randomStringKey = new RandomStringKey();
+                String secretKey = randomStringKey.getAlphaNumericString(n);
+                String encryptFile = file.toString();
+                AESEncryptionDecryption aesEncryptionDecryption = new AESEncryptionDecryption();
+                String encryptedString = aesEncryptionDecryption.encrypt(encryptFile, secretKey);
+                System.out.println(ThreadColor.ANSI_GREEN+file.toString());
 
-            //System.out.println(fileLength);
-            // Send File name , OS to client , file length to the client
-            byte[] filename = (file.toString()+"#"+OSystem+"#"+fileLengthString).getBytes();
-            OutputStream sendFilename =socket.getOutputStream();
-            sendFilename.write(filename);
-            sendFilename.flush();
+                FileInputStream fis = new FileInputStream(file);
+                long fileLength = file.length();
+                String fileLengthString =String.valueOf(fileLength);
 
-            // call function to write content into the file
-            sendContent(fileLength , fis);
+                //System.out.println(fileLength);
+                // Send File name , OS to client , file length to the client
+                byte[] filename = (encryptedString+"#"+OSystem+"#"+fileLengthString+"#"+secretKey).getBytes();
+                OutputStream sendFilename =socket.getOutputStream();
+                sendFilename.write(filename);
+                sendFilename.flush();
 
-        } catch(IOException e) {
+                // call function to write content into the file
+                sendContent(fileLength , fis);
+
+            }
+            catch (NullPointerException e){
+                byte[] filename = ("No String"+"#"+OSystem+"#"+"0"+"#"+"zero").getBytes();
+                OutputStream sendFilename =socket.getOutputStream();
+                sendFilename.write(filename);
+                sendFilename.flush();
+            }
+
+        } catch(IOException  e) {
             System.out.println("Oops: " + e.getMessage());
         }
         finally {

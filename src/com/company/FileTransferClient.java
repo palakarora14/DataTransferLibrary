@@ -1,5 +1,7 @@
 package com.company;
 
+import com.company.SecurityPackage.AESEncryptionDecryption;
+
 import java.io.*;
 import java.net.*;
 import java.nio.file.Files;
@@ -12,7 +14,7 @@ import java.util.stream.Stream;
 public class FileTransferClient {
 
     // copy the "System IP Address : " obtained after running the FileTransferServer.java file
-    private static String serverIp="";
+    private static final String serverIp="192.168.43.74";
 
     public static void main(String[] args) throws Exception{
 
@@ -23,7 +25,7 @@ public class FileTransferClient {
                 byte[] contents = new byte[500000];
 
                 // Read filename , OS , fileLength  from server
-                byte[] filenameOSByteArray = new byte[100];
+                byte[] filenameOSByteArray = new byte[150];
                 InputStream receiveFilenameOS = socket.getInputStream();
                 receiveFilenameOS.read(filenameOSByteArray);
                 String filenameOS = new String(filenameOSByteArray);
@@ -32,67 +34,75 @@ public class FileTransferClient {
                 String filename = split[0];
                 String serverOperatingSystem = split[1];
                 String fileLength = split[2].trim();
-                //System.out.println(filename+" "+serverOperatingSystem+ " "+fileLength);
-
-                //****  String to be decrypted is "String str = filename" ****
-                // It needs to be decrypted at this step
-
-                //check for OS of client and server
-                String target;
-                String Fname;
-                String ClientOS = findOS();
-                boolean ClientOSMac = ClientOS.contains("Mac"); //true
-                boolean ServerOSMac = serverOperatingSystem.contains("Mac"); //true
-
-                // set home directory of user to "home"
-                String home = System.getProperty("user.home");
-                if (ClientOSMac) {
-                    target = home + "/Downloads/GoodProgram/";
-                } else {
-                    //C:\Users\hp
-                    target = home + "\\Downloads\\GoodProgram\\";
+                String secretKey = split[3].trim();
+                if(filename.equals("No String")){
+                    System.out.println("No file was selected !");
                 }
-                // Create Directory
-                Files.createDirectories(Paths.get(target));
-                if (ServerOSMac) {
-                    // find out the name of the file to be downloaded from the server from complete filePath
-                    Fname = filename.substring(filename.lastIndexOf("/") + 1);
-                } else {
-                    Fname = filename.substring(filename.lastIndexOf("\\") + 1);
+                else{
+                    // decryption
+                    // String to be decrypted is "String str = filename"
+                    AESEncryptionDecryption aesEncryptionDecryption = new AESEncryptionDecryption();
+                    String decryptedString = aesEncryptionDecryption.decrypt(filename, secretKey);
+                    System.out.println(ThreadColor.ANSI_GREEN+decryptedString);
+
+                    //check for OS of client and server
+                    String target;
+                    String Fname;
+                    String ClientOS = findOS();
+                    boolean ClientOSMac = ClientOS.contains("Mac"); //true
+                    boolean ServerOSMac = serverOperatingSystem.contains("Mac"); //true
+
+                    // set home directory of user to "home"
+                    String home = System.getProperty("user.home");
+                    if (ClientOSMac) {
+                        target = home + "/Downloads/GoodProgram/";
+                    } else {
+                        //C:\Users\hp
+                        target = home + "\\Downloads\\GoodProgram\\";
+                    }
+                    // Create Directory
+                    Files.createDirectories(Paths.get(target));
+                    if (ServerOSMac) {
+                        // find out the name of the file to be downloaded from the server from complete filePath
+                        Fname = decryptedString.substring(decryptedString.lastIndexOf("/") + 1);
+                    } else {
+                        Fname = decryptedString.substring(decryptedString.lastIndexOf("\\") + 1);
+                    }
+
+                    // Remove the null character from the string
+                    StringJoiner joiner = new StringJoiner("");
+                    Stream.of(Fname.split("\0")).forEach(joiner::add);
+                    Path pathToFile = Paths.get(target + joiner);
+
+
+                    // Initialize the FileOutputStream to the output file's full path
+                    FileOutputStream fos = new FileOutputStream(String.valueOf(pathToFile));
+
+                    // BufferedOutputStream will write the contents to the file
+                    BufferedOutputStream bos = new BufferedOutputStream(fos);
+                    // InputStream will read content from the socket for the client
+                    InputStream is = socket.getInputStream();
+
+
+                    int fileLengthLong = Integer.parseInt(fileLength);
+
+                    long current = downloadContent(is,contents,bos,fileLengthLong,socket);
+
+                    if(current == fileLengthLong) {
+                        bos.flush();
+
+                        System.out.print(Fname + " : ");
+                        System.out.println( ThreadColor.ANSI_YELLOW +"File saved successfully!");
+                        //Italicized text
+                        System.out.println(ThreadColor.ANSI_BLUE+ "\n"+"\033[3mRefer GoodProgram folder in your Downloads folder\033[0m");
+                        socket.close();
+                        // break;
+                    }
+                    else {
+                        System.out.println(ThreadColor.ANSI_YELLOW + "Server Disconnected");
+                    }
                 }
 
-                // Remove the null character from the string
-                StringJoiner joiner = new StringJoiner("");
-                Stream.of(Fname.split("\0")).forEach(joiner::add);
-                Path pathToFile = Paths.get(target + joiner);
-
-
-                // Initialize the FileOutputStream to the output file's full path
-                FileOutputStream fos = new FileOutputStream(String.valueOf(pathToFile));
-
-                // BufferedOutputStream will write the contents to the file
-                BufferedOutputStream bos = new BufferedOutputStream(fos);
-                // InputStream will read content from the socket for the client
-                InputStream is = socket.getInputStream();
-
-
-                int fileLengthLong = Integer.parseInt(fileLength);
-
-                long current = downloadContent(is,contents,bos,fileLengthLong,socket);
-
-                if(current == fileLengthLong) {
-                    bos.flush();
-
-                    System.out.print(Fname + " : ");
-                    System.out.println( ThreadColor.ANSI_YELLOW +"File saved successfully!");
-                    //Italicized text
-                    System.out.println(ThreadColor.ANSI_BLUE+ "\n"+"\033[3mRefer GoodProgram folder in your Downloads folder\033[0m");
-                    socket.close();
-                   // break;
-                }
-                else {
-                    System.out.println(ThreadColor.ANSI_YELLOW + "Server Disconnected");
-                }
             }catch(ConnectException e){
                 System.out.println("Server not Connected !");
             }
@@ -143,8 +153,6 @@ public class FileTransferClient {
                     flag = hostAvailabilityCheck();
                     if(flag)
                     {
-                        //Socket s = new Socket(serverIp,5000);
-                        // file can be retrieved
                         System.out.println("File can be retrieved");
                     }
                     else{
@@ -167,8 +175,7 @@ public class FileTransferClient {
         return current;
     }
 
-    public static long printSpeed(long start , long current)
-    {
+    public static long printSpeed(long start , long current) {
 
             long cost = System.currentTimeMillis() - start;
             long speed= current/cost/1000;
