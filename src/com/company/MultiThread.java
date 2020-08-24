@@ -32,9 +32,10 @@ public class MultiThread extends Thread {
                 File file = new File(pickAFile.selectFile().toString());
                 // encryption
                 // String to be encrypted is "String str = file.toString()"
-                int n = 10;
+                int n = 20;
                 RandomStringKey randomStringKey = new RandomStringKey();
                 String secretKey = randomStringKey.getAlphaNumericString(n);
+                System.out.println(secretKey);
                 String encryptFile = file.toString();
                 AESEncryptionDecryption aesEncryptionDecryption = new AESEncryptionDecryption();
                 String encryptedString = aesEncryptionDecryption.encrypt(encryptFile, secretKey);

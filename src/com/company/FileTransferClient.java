@@ -14,7 +14,7 @@ import java.util.stream.Stream;
 public class FileTransferClient {
 
     // copy the "System IP Address : " obtained after running the FileTransferServer.java file
-    private static final String serverIp="192.168.43.74";
+    private static final String serverIp="";
 
     public static void main(String[] args) throws Exception{
 
@@ -25,7 +25,7 @@ public class FileTransferClient {
                 byte[] contents = new byte[500000];
 
                 // Read filename , OS , fileLength  from server
-                byte[] filenameOSByteArray = new byte[150];
+                byte[] filenameOSByteArray = new byte[200];
                 InputStream receiveFilenameOS = socket.getInputStream();
                 receiveFilenameOS.read(filenameOSByteArray);
                 String filenameOS = new String(filenameOSByteArray);
@@ -127,6 +127,7 @@ public class FileTransferClient {
         long total=0;
         long num=0;
         long start = System.currentTimeMillis();
+        //System.out.println(start);
         try{
             // returns the number of bytes read, or -1 if the end of the stream has been reached.
             while ((bytesRead = is.read(contents)) != -1) {
@@ -176,11 +177,15 @@ public class FileTransferClient {
     }
 
     public static long printSpeed(long start , long current) {
-
+    long speed = 0;
             long cost = System.currentTimeMillis() - start;
-            long speed= current/cost/1000;
-            System.out.printf(ThreadColor.ANSI_PURPLE + "Read %,d bytes, speed: %,d MB/s%n", current, speed);
-            return speed;
-
+        //System.out.println(cost);
+            try{speed= current/cost/1000;
+                System.out.printf(ThreadColor.ANSI_PURPLE + "Read %,d bytes, speed: %,d MB/s%n", current, speed);
+                }
+            catch (ArithmeticException e){
+                System.out.println(start+" "+cost);
+            }
+        return speed;
     }
 }
