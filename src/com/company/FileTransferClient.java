@@ -184,7 +184,7 @@ public class FileTransferClient {
                 System.out.printf(ThreadColor.ANSI_PURPLE + "Read %,d bytes, speed: %,d MB/s%n", current, speed);
                 }
             catch (ArithmeticException e){
-                System.out.println(start+" "+cost);
+                System.out.println("File transferred in no time ");
             }
         return speed;
     }
