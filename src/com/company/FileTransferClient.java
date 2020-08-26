@@ -18,12 +18,12 @@ public class FileTransferClient {
     private static final String serverIp="192.168.43.74";
     private static FileWriter fw;
     private static FileWriter fwLog;
-    private static File f;
 
     public static void main(String[] args) throws Exception {
 
         String os = findOS();
         String home = System.getProperty("user.home");
+        File f;
         if (os.contains("Mac")) {
             fw=new FileWriter(home + "/Downloads/GoodProgram/clientConfig.ini");
             fwLog=new FileWriter(home + "/Downloads/GoodProgram/clientLog.txt");
@@ -52,7 +52,7 @@ public class FileTransferClient {
             case "d" :
                 System.out.println("\"Select a file from the server\"\n");
                 writeConfigurationFile(fw,"Client will Download file from the server");
-                writeConfigurationFile(fw,"Client log filePath = "+f.getAbsolutePath());
+                writeConfigurationFile(fw,"Client log filePath = "+ f.getAbsolutePath());
                 download();
                 break;
             case "u" :
