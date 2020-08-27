@@ -136,7 +136,7 @@ public class MultiThread extends Thread {
                 writeLogFile(fwLog,"write to client");
             }catch (IOException e){
                 System.out.println("Client closed");
-                writeLogFile(fwLog,"Oops : Client closed");
+                writeLogFile(fwLog,"Error = Client closed");
                 break;
             }
             System.out.println(ThreadColor.ANSI_WHITE+"Sending file ... "+(float)(current*100)/fileLength+"% complete!");
