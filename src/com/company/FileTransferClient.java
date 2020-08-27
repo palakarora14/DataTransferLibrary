@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 public class FileTransferClient {
 
     // copy the "System IP Address : " obtained after running the FileTransferServer.java file
-    private static final String serverIp="192.168.43.74";
+    private static final String serverIp="192.168.43.25";
     private static FileWriter fw;
     private static FileWriter fwLog;
 
@@ -168,8 +168,12 @@ public class FileTransferClient {
                     // break;
                 }
                 else {
-                    System.out.println(ThreadColor.ANSI_YELLOW + "Server Disconnected");
-                    writeLogFile(fwLog,"Error = Server Disconnected");
+                    if (socket.isClosed()){
+                        System.out.println(ThreadColor.ANSI_YELLOW+ "Oops Client Disconnected , Try after some Time !!");
+                        writeLogFile(fwLog,"Error = Client Disconnected");
+                    }
+                    else{System.out.println(ThreadColor.ANSI_YELLOW+ "Oops Server Disconnected , Try after some Time !!");
+                        writeLogFile(fwLog,"Error = Server Disconnected");}
                 }
             }
 
@@ -232,7 +236,7 @@ public class FileTransferClient {
                         writeLogFile(fwLog,"Host still unavailable , file can't be retrieved");
                         System.out.println(ThreadColor.ANSI_WHITE+(float)(current*100)/fileLengthLong+"% of the file was downloaded though !");
                         System.out.println(ThreadColor.ANSI_BLUE+ "\n"+"\033[3mRefer GoodProgram folder in your Downloads folder\033[0m");
-                        writeLogFile(fwLog,"(float)(current*100)/fileLengthLong+\"% of the file was downloaded though ");
+                        writeLogFile(fwLog,(float)(current*100)/fileLengthLong+"% of the file was downloaded though ");
                         writeLogFile(fwLog,"Refer GoodProgram folder in your Downloads folder to find file");
                         socket.close();
 
@@ -246,8 +250,12 @@ public class FileTransferClient {
             writeLogFile(fwLog,"Average speed achieved in the whole transaction is : "+average+" MB/s");
         }
         catch (SocketException e){
-            System.out.println(ThreadColor.ANSI_YELLOW+ "Oops Server Disconnected , Try after some Time !!");
-            writeLogFile(fwLog,"Error = Server Disconnected");
+            if (socket.isClosed()){
+                System.out.println(ThreadColor.ANSI_YELLOW+ "Oops Client Disconnected , Try after some Time !!");
+                writeLogFile(fwLog,"Error = Client Disconnected");
+            }
+            else{System.out.println(ThreadColor.ANSI_YELLOW+ "Oops Server Disconnected , Try after some Time !!");
+            writeLogFile(fwLog,"Error = Server Disconnected");}
         }
         return current;
     }

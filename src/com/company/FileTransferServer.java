@@ -18,7 +18,7 @@ public class FileTransferServer {
             f = new File(home + "/Downloads/GoodProgram/serverLog.txt");
         } else {
             //C:\Users\hp
-            fw =new FileWriter(home + "\\Downloads\\GoodProgram\\serverConfig.ini");
+            fw =new FileWriter(home + "\\Downloads\\GoodProgram\\serverConfig.txt");
             fwLog =new FileWriter(home + "\\Downloads\\GoodProgram\\serverLog.txt");
             f = new File(home + "\\Downloads\\GoodProgram\\serverLog.txt");
         }
