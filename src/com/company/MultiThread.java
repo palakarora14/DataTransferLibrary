@@ -7,8 +7,8 @@ import java.io.*;
 import java.net.Socket;
 
 public class MultiThread extends Thread {
-    private Socket socket;
-    private FileWriter fwLog;
+    private final Socket socket;
+    private final FileWriter fwLog;
 
     public MultiThread(Socket socket,FileWriter fwLog) {
         this.socket = socket;
@@ -95,12 +95,11 @@ public class MultiThread extends Thread {
             fwLog.flush();
             //fwLog.close();
         }catch(Exception e)
-        {System.out.println(e);}
+        {System.out.println(e.getMessage());}
     }
 
     private static String findOS() {
-        String os = System.getProperty("os.name");
-        return os;
+        return System.getProperty("os.name");
         //System.out.println(System.getProperty("os.name"));
     }
 

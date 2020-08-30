@@ -12,8 +12,7 @@ public class RandomStringKey {
         byte[] array = new byte[256];
         new Random().nextBytes(array);
 
-        String randomString
-                = new String(array, StandardCharsets.UTF_8);
+        String randomString = new String(array, StandardCharsets.UTF_8);
 
         // Create a StringBuffer to store the result
         StringBuilder r = new StringBuilder();

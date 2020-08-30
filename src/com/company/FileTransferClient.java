@@ -15,7 +15,7 @@ import java.util.stream.Stream;
 public class FileTransferClient {
 
     // copy the "System IP Address : " obtained after running the FileTransferServer.java file
-    private static final String serverIp="192.168.43.25";
+    private static final String serverIp="192.168.43.74";
     private static FileWriter fw;
     private static FileWriter fwLog;
 
